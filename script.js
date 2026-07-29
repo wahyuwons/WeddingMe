@@ -42,7 +42,12 @@
     }, 80);
   }
 
-  if(openButton){ openButton.addEventListener('click', openInvitation); }
+  if(openButton){
+  openButton.addEventListener('click', async () => {
+    openInvitation();
+    await playMusic();
+  });
+}
   document.querySelectorAll('#bottomNav a').forEach(anchor => {
     anchor.addEventListener('click', event => {
       if(!invitationOpened && anchor.getAttribute('href') !== '#cover'){
@@ -69,16 +74,44 @@
   sections.forEach(section => activeObserver.observe(section));
 
   const audio = document.getElementById('audio');
-  const musicToggle = document.getElementById('musicToggle');
-  if(audio && musicToggle){
+const musicToggle = document.getElementById('musicToggle');
+
+async function playMusic(){
+  if(!audio || !musicToggle) return;
+
+  try{
+    audio.volume = 0.7;
+    await audio.play();
+
+    musicToggle.classList.remove('off');
+    musicToggle.setAttribute('aria-label', 'Pause music');
+  }catch(err){
     musicToggle.classList.add('off');
-    musicToggle.addEventListener('click', async () => {
-      try{
-        if(audio.paused){ await audio.play(); musicToggle.classList.remove('off'); }
-        else{ audio.pause(); musicToggle.classList.add('off'); }
-      }catch(err){ musicToggle.classList.add('off'); }
-    });
+    musicToggle.setAttribute('aria-label', 'Play music');
+    console.warn('Audio could not be played:', err);
   }
+}
+
+function pauseMusic(){
+  if(!audio || !musicToggle) return;
+
+  audio.pause();
+  musicToggle.classList.add('off');
+  musicToggle.setAttribute('aria-label', 'Play music');
+}
+
+if(audio && musicToggle){
+  musicToggle.classList.add('off');
+  musicToggle.setAttribute('aria-label', 'Play music');
+
+  musicToggle.addEventListener('click', async () => {
+    if(audio.paused){
+      await playMusic();
+    }else{
+      pauseMusic();
+    }
+  });
+}
 
   const video = document.querySelector('.cover-video');
   if(video){ video.addEventListener('error', () => { video.style.display = 'none'; }); }
