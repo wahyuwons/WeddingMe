@@ -18,7 +18,25 @@
     }
   }
   document.querySelectorAll('[data-particles]').forEach(makeParticles);
+  // Personalized guest name from URL:
+  // Example: https://domain.com/?to=Jessica
+  const urlParams = new URLSearchParams(window.location.search);
+  const guestNameElement = document.getElementById('guestName');
+  const wishNameInput = document.getElementById('wishName');
+  const guestParam = urlParams.get('to');
 
+  const guestName = guestParam
+    ? guestParam.trim().replace(/\s+/g, ' ').slice(0, 80)
+    : 'Bapak/Ibu/Saudara/i';
+
+  if(guestNameElement){
+    guestNameElement.textContent = guestName;
+  }
+
+  // Automatically fill the guest name in the wishes form
+  if(wishNameInput && guestParam){
+    wishNameInput.value = guestName;
+  }
   if(document.body.classList.contains('cover-locked')){
     if(window.location.hash && window.location.hash !== '#cover'){
       history.replaceState(null, '', window.location.pathname + window.location.search);
